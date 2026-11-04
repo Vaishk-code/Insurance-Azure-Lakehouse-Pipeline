@@ -1,0 +1,8 @@
+insureflow_data/
+.env
+*.pem
+*.key
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+# never commit secrets, connection strings, or keys
