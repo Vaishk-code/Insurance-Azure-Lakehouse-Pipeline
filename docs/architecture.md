@@ -2,6 +2,10 @@
 
 ## 1. End-to-end architecture
 
+![Architecture](images/architecture.png)
+
+The same architecture as an editable text-based diagram:
+
 ```mermaid
 flowchart LR
     subgraph SRC["Sources"]

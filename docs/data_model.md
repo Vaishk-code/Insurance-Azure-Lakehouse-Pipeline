@@ -92,6 +92,10 @@ Where each table lives: `customers`, `policies`, `brokers`, `invoices` in Azure 
 
 ## 2. Gold layer: star schema
 
+![Gold star schema](images/star_schema.png)
+
+The same model as an ER diagram (with data types):
+
 ```mermaid
 erDiagram
     DIM_CUSTOMER ||--o{ FACT_CLAIMS : "customer_key"

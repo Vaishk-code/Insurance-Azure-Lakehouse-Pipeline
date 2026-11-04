@@ -11,56 +11,15 @@ Claims, finance, and fraud teams rely on manual, inconsistent reports. This plat
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    subgraph SRC["Sources"]
-        A["Azure SQL<br/>customers, policies,<br/>brokers, invoices"]
-        B["Daily CSV files<br/>claims, payments"]
-        C["Fraud score API<br/>JSON"]
-        D["Event Hubs<br/>claim events"]
-        N["Adjuster notes<br/>unstructured text"]
-    end
-    E["Azure Data Factory"]
-    subgraph LAKE["ADLS Gen2 - Medallion"]
-        F[("Bronze")]
-        G[("Silver")]
-        H[("Gold")]
-        Q[("Quarantine")]
-    end
-    I["Databricks<br/>PySpark + Delta Lake"]
-    J["Synapse serverless"]
-    K["Power BI"]
-    A --> E
-    B --> E
-    C --> E
-    N --> E
-    E --> F
-    D --> I
-    F --> I
-    I --> G
-    I --> Q
-    I --> H
-    H --> J --> K
-```
+![Architecture](docs/images/architecture.png)
 
 More diagrams (medallion detail, streaming, daily run) in [`docs/architecture.md`](docs/architecture.md).
 
 ## Data model
 
-Gold star schema (full source model and column details in [`docs/data_model.md`](docs/data_model.md)):
+Gold layer star schema (full source model and column details in [`docs/data_model.md`](docs/data_model.md)):
 
-```mermaid
-erDiagram
-    DIM_CUSTOMER ||--o{ FACT_CLAIMS : "customer_key"
-    DIM_POLICY ||--o{ FACT_CLAIMS : "policy_key"
-    DIM_BROKER ||--o{ FACT_CLAIMS : "broker_key"
-    DIM_DATE ||--o{ FACT_CLAIMS : "claim_date_key"
-    DIM_CUSTOMER ||--o{ FACT_INVOICES : "customer_key"
-    DIM_POLICY ||--o{ FACT_INVOICES : "policy_key"
-    DIM_BROKER ||--o{ FACT_INVOICES : "broker_key"
-    DIM_DATE ||--o{ FACT_INVOICES : "invoice_date_key"
-    FACT_INVOICES ||--o{ FACT_PREMIUM_PAYMENTS : "invoice_id"
-```
+![Gold star schema](docs/images/star_schema.png)
 
 ## Tech stack
 | Layer | Technology |
