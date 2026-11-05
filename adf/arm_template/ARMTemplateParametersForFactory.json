@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "value":  "<your-factory-name>"
+        },
+        "ls_adls_accountKey": {
+            "value": ""
+        },
+        "ls_sql_password": {
+            "value": ""
+        },
+        "ls_adls_properties_typeProperties_url": {
+            "value": "https://<your-storage-account>.dfs.core.windows.net/"
+        },
+        "ls_sql_properties_typeProperties_server": {
+            "value": "<your-server>.database.windows.net"
+        },
+        "ls_sql_properties_typeProperties_database": {
+            "value": "<your-database>"
+        },
+        "ls_sql_properties_typeProperties_userName": {
+            "value": "<your-sql-admin-user>"
+        },
+        "ls_github_http_properties_typeProperties_url": {
+            "value": "https://raw.githubusercontent.com/"
+        }
+    }
+}
