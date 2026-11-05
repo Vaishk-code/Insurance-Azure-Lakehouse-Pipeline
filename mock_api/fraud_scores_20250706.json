@@ -1,0 +1,242 @@
+[
+ {
+  "claim_id": "CL0003412",
+  "fraud_score": 0.079,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003413",
+  "fraud_score": 0.19,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003414",
+  "fraud_score": 0.199,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003415",
+  "fraud_score": 0.029,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003416",
+  "fraud_score": 0.34,
+  "risk_band": "Medium",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003417",
+  "fraud_score": 0.171,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003418",
+  "fraud_score": 0.018,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003419",
+  "fraud_score": 0.135,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003420",
+  "fraud_score": 0.3,
+  "risk_band": "Medium",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003421",
+  "fraud_score": 0.079,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003422",
+  "fraud_score": 0.186,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003423",
+  "fraud_score": 0.09,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003424",
+  "fraud_score": 0.153,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003425",
+  "fraud_score": 0.489,
+  "risk_band": "Medium",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003426",
+  "fraud_score": 0.177,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003427",
+  "fraud_score": 0.248,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003428",
+  "fraud_score": 0.356,
+  "risk_band": "Medium",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003429",
+  "fraud_score": 0.027,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003430",
+  "fraud_score": 0.095,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003431",
+  "fraud_score": 0.082,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003432",
+  "fraud_score": 0.09,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003433",
+  "fraud_score": 0.048,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003434",
+  "fraud_score": 0.214,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003435",
+  "fraud_score": 0.096,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003436",
+  "fraud_score": 0.103,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003437",
+  "fraud_score": 0.227,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003438",
+  "fraud_score": 0.059,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003439",
+  "fraud_score": 0.002,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003440",
+  "fraud_score": 0.109,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003441",
+  "fraud_score": 0.402,
+  "risk_band": "Medium",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003442",
+  "fraud_score": 0.09,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003443",
+  "fraud_score": 0.1,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003444",
+  "fraud_score": 0.049,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003445",
+  "fraud_score": 0.195,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003446",
+  "fraud_score": 0.047,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003447",
+  "fraud_score": 0.407,
+  "risk_band": "Medium",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003448",
+  "fraud_score": 0.067,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003449",
+  "fraud_score": 0.089,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003450",
+  "fraud_score": 0.076,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ },
+ {
+  "claim_id": "CL0003451",
+  "fraud_score": 0.054,
+  "risk_band": "Low",
+  "scored_at": "2025-07-06 18:00:00"
+ }
+]
