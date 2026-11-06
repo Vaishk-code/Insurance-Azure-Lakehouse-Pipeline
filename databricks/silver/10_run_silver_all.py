@@ -14,8 +14,10 @@ dbutils.widgets.text("fraud_pattern", "fraud_scores_initial*.json", "Fraud file 
 
 batch = dbutils.widgets.get("batch")
 
-steps = [
-    ("./01_silver_brokers",      {"batch": batch}),
+steps = []
+if batch == "initial":
+    steps.append(("./01_silver_brokers", {"batch": batch}))
+steps += [
     ("./02_silver_customers",    {"batch": batch}),
     ("./03_silver_policies",     {"batch": batch}),
     ("./04_silver_invoices",     {"batch": batch}),
