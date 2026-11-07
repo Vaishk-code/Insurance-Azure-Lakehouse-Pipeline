@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "value": "insuarnceadf"
+        },
+        "ls_adls_accountKey": {
+            "value": ""
+        },
+        "ls_sql_password": {
+            "value": ""
+        },
+        "ls_adls_properties_typeProperties_url": {
+            "value": "https://insurancelake.dfs.core.windows.net/"
+        },
+        "ls_sql_properties_typeProperties_server": {
+            "value": "<YOUR AZURE SERVERNAME>"
+        },
+        "ls_sql_properties_typeProperties_database": {
+            "value": "<YOUR AZURE DATABASENAME>"
+        },
+        "ls_sql_properties_typeProperties_userName": {
+            "value": "<YOUR ADMIN NAME>"
+        },
+        "ls_github_http_properties_typeProperties_url": {
+            "value": "https://raw.githubusercontent.com/"
+        }
+    }
+}

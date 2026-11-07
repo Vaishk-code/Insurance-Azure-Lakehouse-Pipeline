@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "value": "insuarnceadf"
+        },
+        "ls_adls_accountKey": {
+            "value": ""
+        },
+        "ls_sql_password": {
+            "value": ""
+        },
+        "ls_adls_properties_typeProperties_url": {
+            "value": "https://insurancelake.dfs.core.windows.net/"
+        },
+        "ls_sql_properties_typeProperties_server": {
+            "value": "insurance-sql-vaish-server.database.windows.net"
+        },
+        "ls_sql_properties_typeProperties_database": {
+            "value": "insurance-policy-db"
+        },
+        "ls_sql_properties_typeProperties_userName": {
+            "value": "sqladmin"
+        },
+        "ls_github_http_properties_typeProperties_url": {
+            "value": "https://raw.githubusercontent.com/"
+        },
+        "containerUri": {
+            "value": ""
+        },
+        "containerSasToken": {
+            "value": ""
+        }
+    }
+}
