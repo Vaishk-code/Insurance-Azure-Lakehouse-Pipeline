@@ -170,8 +170,6 @@ insurance-azure-data-pipeline/
 - [Business requirements](docs/business_requirements.md)
 - [Architecture](docs/architecture.md)
 - [Data model](docs/data_model.md)
-- [Design decisions](docs/decisions.md)
-- [Project plan](docs/project_plan.md)
 - [Runbook](docs/runbook.md)
 
 ## Run it yourself
