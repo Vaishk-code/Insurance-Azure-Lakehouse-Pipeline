@@ -1,14 +1,4 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 08 Silver: adjuster notes (unstructured text)
-# MAGIC Each note is a free-text `.txt` file. We turn the text into columns:
-# MAGIC claim id, adjuster, date, amount mentioned, police report, injury, red-flag phrases, note quality.
-# MAGIC Needs Silver `claims` first.
-
-# COMMAND ----------
-# MAGIC %run ../common/00_config
-
-# COMMAND ----------
+# 08 Silver: adjuster notes (unstructured text)
 
 dbutils.widgets.text("batch", "initial", "Bronze notes folder")
 batch = dbutils.widgets.get("batch")
@@ -16,24 +6,13 @@ TABLE = "claim_notes"
 src = f"{BRONZE}/notes/{batch}/*.txt"
 print("Reading:", src)
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 1: read every note file as one text value (`wholetext`)
-
-# COMMAND ----------
+# Step 1: read every note file as one text value (`wholetext`)
 
 raw = bronze_meta(spark.read.text(src, wholetext=True))
 print("Note files:", raw.count())
 display(raw.limit(3))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 2: extract fields with regular expressions
-# MAGIC * header fields (Claim ID, Policy ID, Adjuster, Date, Claim Type) sit at the top
-# MAGIC * if the Claim ID header is missing, we fall back to the file name (`CL0000123.txt`)
-# MAGIC * the free text is everything after the first blank line
-
-# COMMAND ----------
+# Step 2: extract fields with regular expressions
 
 txt = F.col("value")
 body = F.regexp_replace(
@@ -56,16 +35,7 @@ parsed = (raw
 )
 display(parsed.select("file_name", "claim_id", "note_type", "adjuster", "note_date", "note_text").limit(5))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 3: turn the text into features
-# MAGIC * `note_amount`: first dollar amount written in the text
-# MAGIC * `police_report_status`: filed / not_available / unknown
-# MAGIC * `injury_mentioned`: true / false / unknown
-# MAGIC * `red_flag_count`: how many suspicious phrases appear (case-insensitive, so ALL CAPS notes still count)
-# MAGIC * `note_quality`: poor if the text is almost empty (for example "See attached.")
-
-# COMMAND ----------
+# Step 3: turn the text into features
 
 RED_FLAG_PHRASES = [
     "differs from the witness", "inconsistent with the reported", "shortly after the policy",
@@ -90,24 +60,14 @@ features = (parsed
     .withColumn("note_quality", F.when(F.length("note_text") < 25, "poor").otherwise("ok"))
 )
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 4: compare with the structured claim
-# MAGIC Join to Silver `claims` to check the claim exists and whether the amount in the text
-# MAGIC matches the claim amount (more than 25 percent apart is flagged, for assessment notes only).
-
-# COMMAND ----------
+# Step 4: compare with the structured claim
 
 claims = (spark.read.format("delta").load(f"{SILVER}/claims")
           .select("claim_id", F.col("claim_amount").alias("claim_amount_structured"),
                   F.lit(True).alias("_in_silver")))
 joined = features.join(claims, "claim_id", "left")
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 5: rules, quarantine, MERGE
-
-# COMMAND ----------
+# Step 5: rules, quarantine, MERGE
 
 reject_rules = {"no_claim_id": "claim_id IS NULL"}
 flag_rules = {
@@ -124,11 +84,7 @@ finish_table(TABLE, batch, joined, data_cols, reject_rules,
              keys=["file_name"], order_col="_bronze_ts",
              flag_rules=flag_rules, drop_cols=helper_cols)
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 6: check the result
-
-# COMMAND ----------
+# Step 6: check the result
 
 out = spark.read.format("delta").load(f"{SILVER}/{TABLE}")
 print("Silver notes:", out.count())

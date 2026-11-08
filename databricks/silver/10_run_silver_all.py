@@ -1,11 +1,5 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 10 Run the whole Silver layer
-# MAGIC Runs notebooks 01 to 09 in the right order (parents before children).
-# MAGIC Safe to run again: every step uses MERGE.
-# MAGIC Later, Data Factory will call this notebook with the day's parameters.
+#10 Run the whole Silver layer
 
-# COMMAND ----------
 
 dbutils.widgets.text("batch", "initial", "SQL / notes Bronze folder")
 dbutils.widgets.text("claims_pattern", "claims_initial*.csv", "Claims file pattern")
@@ -28,7 +22,6 @@ steps += [
     ("./09_silver_dq_report",    {}),
 ]
 
-# COMMAND ----------
 
 for notebook, params in steps:
     print("Running", notebook, params)

@@ -1,22 +1,5 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 11 Gold: dim_date
-# MAGIC **What it is:** a calendar table, one row per day. Reports use it to group by month, quarter, weekday.
-# MAGIC
-# MAGIC **Why a separate table?** So every fact table can join to the same calendar, and "March 2025" means the same everywhere.
-# MAGIC
-# MAGIC **Date key:** we turn a date like `2025-07-01` into the number `20250701`. It is short, easy to read, and joins fast.
-# MAGIC
-# MAGIC **Needs:** nothing. Run this first.
-
-# COMMAND ----------
-# MAGIC %run ./00_gold_config
-
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 1: make one row for every day from 2018 to 2026
-
-# COMMAND ----------
+# Gold: dim_date
+# Step 1: make one row for every day from 2018 to 2026
 
 dates = spark.sql("""
     SELECT explode(sequence(to_date('2018-01-01'), to_date('2026-12-31'), interval 1 day)) AS full_date
@@ -24,11 +7,7 @@ dates = spark.sql("""
 dates.createOrReplaceTempView("all_dates")
 print("Days created:", dates.count())
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 2: add the useful columns (year, month, quarter, weekday...)
-
-# COMMAND ----------
+# Step 2: add the useful columns (year, month, quarter, weekday...)
 
 dim_date = spark.sql("""
     SELECT
@@ -44,20 +23,11 @@ dim_date = spark.sql("""
 """)
 display(dim_date.limit(10))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 3: save to Gold
-
-# COMMAND ----------
+# Step 3: save to Gold
 
 save_gold(dim_date, "dim_date")
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 4: quick check
-# MAGIC The number of rows should be 3,287 (days from 1 Jan 2018 to 31 Dec 2026), and every `date_key` should be unique.
-
-# COMMAND ----------
+# Step 4: quick check
 
 d = load_gold("dim_date")
 print("rows:", d.count(), " distinct date_key:", d.select("date_key").distinct().count())

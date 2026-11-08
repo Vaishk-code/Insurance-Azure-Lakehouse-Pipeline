@@ -1,12 +1,4 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 09 Silver: data quality report
-# MAGIC Summarises what was rejected (Quarantine), what was flagged, and the audit log.
-
-# COMMAND ----------
-# MAGIC %run ../common/00_config
-
-# COMMAND ----------
+# 09 Silver: data quality report
 
 from functools import reduce
 from pyspark.sql import DataFrame
@@ -14,11 +6,7 @@ from pyspark.sql import DataFrame
 TABLES = ["brokers", "customers", "policies", "invoices",
           "claims", "payments", "fraud_scores", "claim_notes"]
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Part 1: rejected rows by table and rule
-
-# COMMAND ----------
+# Part 1: rejected rows by table and rule
 
 parts = []
 for t in TABLES:
@@ -29,11 +17,7 @@ for t in TABLES:
             F.lit("rejected").alias("kind"),
             F.explode(F.split("reasons", "; ")).alias("rule")))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Part 2: flagged rows (kept in Silver) by table and rule
-
-# COMMAND ----------
+# Part 2: flagged rows (kept in Silver) by table and rule
 
 for t in TABLES:
     p = f"{SILVER}/{t}"
@@ -49,12 +33,7 @@ summary = (reduce(DataFrame.unionByName, parts)
 summary.write.format("delta").mode("overwrite").save(f"{REPORTS}/dq_summary")
 display(summary)
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Part 3: audit log (latest run per table)
-# MAGIC `duplicates_removed = rows_read - rows_silver - rows_quarantined`
-
-# COMMAND ----------
+# Part 3: audit log (latest run per table)
 
 audit = spark.read.format("delta").load(AUDIT)
 w = Window.partitionBy("table_name").orderBy(F.col("run_ts").desc())

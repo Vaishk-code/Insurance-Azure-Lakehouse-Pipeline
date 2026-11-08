@@ -1,24 +1,6 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 00_gold_config: small helpers for the Gold notebooks
-# MAGIC This notebook does three things:
-# MAGIC 1. Loads your existing Silver settings (`../common/00_config`, where you already set your storage account name)
-# MAGIC 2. Defines where Gold tables are saved
-# MAGIC 3. Gives you 3 small helper functions: `load_silver`, `load_gold`, `save_gold`
-# MAGIC
-# MAGIC **You do not need to change anything here**, except `AS_OF` if you stopped at a different day.
+# 00_gold_config: small helpers for the Gold notebooks
 
-# COMMAND ----------
-# MAGIC %run ../common/00_config
-
-# COMMAND ----------
-
-# Gold tables are saved in the "gold" container
 GOLD = lake("gold")
-
-# "Today" for this project. Used for invoice aging and open-claim age.
-# We loaded days up to 5 July 2025, so we pretend today is 5 July 2025.
-# If you stopped at a different day, change this date.
 AS_OF = "2025-07-05"
 
 

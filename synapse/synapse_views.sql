@@ -1,9 +1,9 @@
- SECTION 1: create the database;
+ Step 1: create the database;
    --------------------------------------------------------------------- 
 CREATE DATABASE insurance_gold;
 GO
  ---------------------------------------------------------------------
-   SECTION 2: one view per Gold table 
+   Step 2: one view per Gold table 
 ------------------------------------------------------------------------
 CREATE VIEW dbo.dim_date AS
 SELECT * FROM OPENROWSET(
@@ -49,7 +49,7 @@ GO
 
 
 ---------------------------------------------------------------------
-   SECTION 3: business metric views 
+   Step 3: business metric views 
 --------------------------------------------------------------------- 
 
  1. Loss ratio = approved claims / premium received, by month and policy type

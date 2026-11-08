@@ -1,32 +1,5 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 15 Gold: fact_invoices
-# MAGIC **What it is:** one row per invoice, showing how much was billed, how much was paid, and how overdue it is.
-# MAGIC
-# MAGIC **Steps in plain words:**
-# MAGIC 1. Add up the payments for each invoice (`amount_paid`). Missed payments do not count as paid.
-# MAGIC 2. Work out if the invoice is fully paid, how many days it took, or how many days overdue it is.
-# MAGIC 3. Put the invoice in an **aging bucket**.
-# MAGIC
-# MAGIC **Aging bucket rules (written down so you can explain them):**
-# MAGIC | Bucket | Rule |
-# MAGIC |---|---|
-# MAGIC | Paid | amount paid is at least the invoice amount |
-# MAGIC | Not yet due | not fully paid, and the due date is on or after the as-of date |
-# MAGIC | 0-30 | not fully paid, 1 to 30 days past due |
-# MAGIC | 31-60 | not fully paid, 31 to 60 days past due |
-# MAGIC | 60+ | not fully paid, more than 60 days past due |
-# MAGIC
-# MAGIC "As-of date" is `AS_OF` from the config notebook (the last day we loaded).
-# MAGIC
-# MAGIC **Needs:** notebooks 11 to 13 done first.
-
-# COMMAND ----------
-# MAGIC %run ./00_gold_config
-
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 1: load what we need
+# Gold: fact_invoices
+# Step 1: load what we need
 
 # COMMAND ----------
 
@@ -39,12 +12,7 @@ load_gold("dim_broker")
 print("As-of date:", AS_OF)
 print("Silver invoices:", spark.table("silver_invoices").count())
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 2: add up the payments per invoice
-# MAGIC Only Paid, Late and Partial payments count. A Missed payment is not money received.
-
-# COMMAND ----------
+#Step 2: add up the payments per invoice
 
 spark.sql("""
     SELECT invoice_id,
@@ -54,11 +22,7 @@ spark.sql("""
     GROUP BY invoice_id
 """).createOrReplaceTempView("paid_per_invoice")
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 3: join invoices with payments and work out the new columns
-
-# COMMAND ----------
+# Step 3: join invoices with payments and work out the new columns
 
 spark.sql(f"""
     SELECT i.invoice_id, i.policy_id, i.customer_id, i.invoice_date, i.due_date,
@@ -82,11 +46,7 @@ spark.sql(f"""
     FROM inv_base
 """).createOrReplaceTempView("inv_calc")
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 4: add the aging bucket and the dimension keys
-
-# COMMAND ----------
+# Step 4: add the aging bucket and the dimension keys
 
 fact_invoices = spark.sql(f"""
     SELECT
@@ -116,11 +76,7 @@ fact_invoices = spark.sql(f"""
 """)
 display(fact_invoices.limit(10))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 5: row count check, then save
-
-# COMMAND ----------
+# Step 5: row count check, then save
 
 n_silver = spark.table("silver_invoices").count()
 n_fact = fact_invoices.count()
@@ -128,11 +84,7 @@ print("Silver invoices:", n_silver, "  fact_invoices:", n_fact)
 print("OK, same count" if n_silver == n_fact else "PROBLEM: counts differ")
 save_gold(fact_invoices, "fact_invoices")
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 6: look at the aging buckets and one partially paid invoice
-
-# COMMAND ----------
+# Step 6: look at the aging buckets and one partially paid invoice
 
 load_gold("fact_invoices")
 display(spark.sql("""

@@ -1,17 +1,10 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 00_config: shared settings and helper functions
-# MAGIC Every Silver notebook starts with `%run ../common/00_config`.
-# MAGIC
-# MAGIC **Edit only `STORAGE_ACCOUNT` below (once).**
-
-# COMMAND ----------
+ # 00_config: shared settings and helper functions
 
 from pyspark.sql import functions as F, Window
 from delta.tables import DeltaTable
 from datetime import datetime
 
-STORAGE_ACCOUNT = "insurancelake"   # <-- change this once to your storage account name
+STORAGE_ACCOUNT = "insurancelake"   
 
 
 def lake(container, path=""):
@@ -21,15 +14,11 @@ def lake(container, path=""):
 
 BRONZE = lake("bronze")
 SILVER = lake("silver")
-QUAR = f"{SILVER}/_quarantine"          # rejected rows, one Delta table per source
-AUDIT = f"{SILVER}/_audit/run_log"      # one row per notebook run
-REPORTS = f"{SILVER}/_reports"          # DQ summary for later dashboards
+QUAR = f"{SILVER}/_quarantine"          
+AUDIT = f"{SILVER}/_audit/run_log"      
+REPORTS = f"{SILVER}/_reports"          
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ### Helper 1: add file metadata (which Bronze file a row came from, and when it landed)
-
-# COMMAND ----------
+# Helper 1: add file metadata (which Bronze file a row came from, and when it landed)
 
 def bronze_meta(df):
     """Call right after spark.read. Adds _source_file and _bronze_ts."""
@@ -39,15 +28,7 @@ def bronze_meta(df):
         F.col("_metadata.file_modification_time").alias("_bronze_ts"),
     )
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ### Helper 2: data quality rules
-# MAGIC * **reject rules**: a row that breaks one goes to Quarantine (never reaches Silver)
-# MAGIC * **flag rules**: the row stays in Silver, and the rule name is recorded in `dq_flags`
-# MAGIC
-# MAGIC A rule is a SQL expression that is TRUE when the row is BAD.
-
-# COMMAND ----------
+# Helper 2: data quality rules
 
 def apply_rules(df, reject_rules, flag_rules=None):
     flag_rules = flag_rules or {}
@@ -63,21 +44,13 @@ def apply_rules(df, reject_rules, flag_rules=None):
     good = df.filter(F.size("_reject") == 0).drop("_reject")
     return good, bad
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ### Helper 3: keep only the latest version of each key
-
-# COMMAND ----------
+# Helper 3: keep only the latest version of each key
 
 def dedupe_latest(df, keys, order_col):
     w = Window.partitionBy(*keys).orderBy(F.col(order_col).desc_nulls_last(), F.col("_bronze_ts").desc())
     return df.withColumn("_rn", F.row_number().over(w)).filter("_rn = 1").drop("_rn")
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ### Helper 4: write rejected rows to Quarantine (safe to re-run: replaces only this batch)
-
-# COMMAND ----------
+# Helper 4: write rejected rows to Quarantine (safe to re-run: replaces only this batch)
 
 def write_quarantine(bad, table, batch_id, data_cols):
     q = bad.select(
@@ -94,14 +67,7 @@ def write_quarantine(bad, table, batch_id, data_cols):
     else:
         q.write.format("delta").mode("overwrite").save(path)
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ### Helper 5: MERGE (upsert) into a Silver Delta table
-# MAGIC * new key: insert
-# MAGIC * existing key: update, but only if the incoming row is newer or equal (late old data cannot overwrite new data)
-# MAGIC * re-running the same batch gives the same result (idempotent)
-
-# COMMAND ----------
+# Helper 5: MERGE (upsert) into a Silver Delta table
 
 def upsert_delta(df, path, keys, order_col):
     if not DeltaTable.isDeltaTable(spark, path):
@@ -114,11 +80,7 @@ def upsert_delta(df, path, keys, order_col):
         .whenNotMatchedInsertAll()
         .execute())
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ### Helper 6: referential checks (does the parent row exist?)
-
-# COMMAND ----------
+# Helper 6: referential checks (does the parent row exist?)
 
 def silver_ids(table, key):
     """Distinct keys currently in a Silver table."""
@@ -135,11 +97,7 @@ def quarantined_ids(table, key):
                 .distinct().withColumn("_in_quarantine", F.lit(True)))
     return spark.createDataFrame([], f"{key} string, _in_quarantine boolean")
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ### Helper 7: audit log (one row per run: rows read / written / rejected)
-
-# COMMAND ----------
+# Helper 7: audit log (one row per run: rows read / written / rejected)
 
 def log_run(table, batch_id, rows_read, rows_silver, rows_quarantined):
     row = [(datetime.utcnow().isoformat(), table, batch_id, rows_read, rows_silver, rows_quarantined)]
@@ -147,12 +105,7 @@ def log_run(table, batch_id, rows_read, rows_silver, rows_quarantined):
               "rows_read long, rows_silver long, rows_quarantined long")
     spark.createDataFrame(row, schema).write.format("delta").mode("append").save(AUDIT)
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ### Helper 8: the standard finishing steps used by every table
-# MAGIC rules -> split good/bad -> quarantine -> dedupe -> MERGE -> audit log
-
-# COMMAND ----------
+# Helper 8: the standard finishing steps used by every table
 
 def finish_table(table, batch, df, data_cols, reject_rules, keys, order_col,
                  flag_rules=None, drop_cols=None, history_keys=None):

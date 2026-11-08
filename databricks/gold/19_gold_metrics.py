@@ -1,34 +1,11 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 19 Gold metrics: the 8 business questions
-# MAGIC Each cell answers one question from `docs/business_requirements.md`, using only Gold tables.
-# MAGIC Run it, look at the results, and take screenshots.
-# MAGIC
-# MAGIC **Definitions (write these in `docs/data_model.md`, interviewers ask):**
-# MAGIC | Metric | Definition |
-# MAGIC |---|---|
-# MAGIC | Loss ratio | approved claim amount divided by premium received (payments with status Paid, Late or Partial), by month and policy type |
-# MAGIC | Average settlement days | average days from claim date to settlement, settled claims only |
-# MAGIC | Collection rate | invoices fully paid divided by invoices due on or before the as-of date; on-time means paid within 5 days after the due date |
-# MAGIC | High-risk share | claims with risk band High divided by all claims, by broker region |
-# MAGIC | Open claims | claims still Pending or Under Review, with their average age in days at the as-of date |
-# MAGIC | Invoice aging | outstanding amount by aging bucket |
-
-# COMMAND ----------
-# MAGIC %run ./00_gold_config
-
-# COMMAND ----------
+# Gold metrics: the 8 business questions
 
 for t in ["dim_date", "dim_broker", "dim_policy", "dim_customer",
           "fact_claims", "fact_invoices", "fact_premium_payments"]:
     load_gold(t)
 print("As-of date:", AS_OF)
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## 1. Loss ratio by month and policy type
-
-# COMMAND ----------
+# 1. Loss ratio by month and policy type
 
 display(spark.sql("""
     WITH claims_m AS (
@@ -54,11 +31,7 @@ display(spark.sql("""
     ORDER BY c.year, c.month, c.policy_type
 """))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## 2. Average settlement days by claim reason
-
-# COMMAND ----------
+# 2. Average settlement days by claim reason
 
 display(spark.sql("""
     SELECT claim_reason, COUNT(*) AS settled_claims, ROUND(AVG(settlement_days), 1) AS avg_settlement_days
@@ -68,11 +41,7 @@ display(spark.sql("""
     ORDER BY avg_settlement_days DESC
 """))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## 3. Collection rate by due month
-
-# COMMAND ----------
+# 3. Collection rate by due month
 
 as_of_key = int(AS_OF.replace("-", ""))
 display(spark.sql(f"""
@@ -89,11 +58,7 @@ display(spark.sql(f"""
     ORDER BY d.year, d.month
 """))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## 4. High-risk claims by broker region
-
-# COMMAND ----------
+# 4. High-risk claims by broker region
 
 display(spark.sql("""
     SELECT b.region,
@@ -106,11 +71,8 @@ display(spark.sql("""
     ORDER BY high_risk_share DESC
 """))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## 5. Open claims: how many, and how old
+# 5. Open claims: how many, and how old
 
-# COMMAND ----------
 
 display(spark.sql(f"""
     SELECT fc.claim_status,
@@ -122,14 +84,7 @@ display(spark.sql(f"""
     GROUP BY fc.claim_status
 """))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## 6. Where did the customer live on the claim date?
-# MAGIC Only claims where the customer's city at the claim date is different from their current city.
-# MAGIC If this returns no rows, nobody in your 5 loaded days moved after filing a claim, which is fine.
-# MAGIC The SCD2 proof is also in notebook 13, Step 6.
-
-# COMMAND ----------
+# 6. Where did the customer live on the claim date?
 
 display(spark.sql("""
     SELECT fc.claim_id, d.full_date AS claim_date, dc.customer_id,
@@ -143,11 +98,7 @@ display(spark.sql("""
     LIMIT 20
 """))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## 7. Invoice aging: money still owed, by bucket
-
-# COMMAND ----------
+# 7. Invoice aging: money still owed, by bucket
 
 display(spark.sql("""
     SELECT aging_bucket, COUNT(*) AS invoices, ROUND(SUM(outstanding_amount), 2) AS outstanding_amount
@@ -157,13 +108,7 @@ display(spark.sql("""
     ORDER BY CASE aging_bucket WHEN 'Not yet due' THEN 0 WHEN '0-30' THEN 1 WHEN '31-60' THEN 2 ELSE 3 END
 """))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## 8. Does the adjuster note agree with the fraud API?
-# MAGIC A 2 by 2 table, for claims that have a note. If the text and the API agree, most claims fall in
-# MAGIC "no flag / not high" and "flag / high".
-
-# COMMAND ----------
+# 8. Does the adjuster note agree with the fraud API?
 
 display(spark.sql("""
     SELECT (red_flag_count > 0) AS note_has_red_flag,

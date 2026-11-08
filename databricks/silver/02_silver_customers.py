@@ -1,36 +1,17 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 02 Silver: customers
-# MAGIC Also keeps `customers_history` (every version of a customer), which Gold uses for SCD Type 2.
-
-# COMMAND ----------
-# MAGIC %run ../common/00_config
-
-# COMMAND ----------
+ # 02 Silver: customers
 
 dbutils.widgets.text("batch", "initial", "Bronze load folder")
 batch = dbutils.widgets.get("batch")
 TABLE = "customers"
 src = f"{BRONZE}/sql/{TABLE}/{batch}"
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 1: read Bronze
-
-# COMMAND ----------
+# Step 1: read Bronze
 
 raw = bronze_meta(spark.read.format("parquet").load(src))
 print("Bronze rows (includes duplicates):", raw.count())
 display(raw.limit(5))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 2: clean and type
-# MAGIC * names: trim and Title Case
-# MAGIC * email: lower case; empty text becomes NULL
-# MAGIC * state: upper case
-
-# COMMAND ----------
+# Step 2: clean and type
 
 typed = raw.select(
     F.upper(F.trim("customer_id")).alias("customer_id"),
@@ -47,12 +28,7 @@ typed = raw.select(
     "_source_file", "_bronze_ts",
 )
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 3: rules
-# MAGIC Bad emails do NOT remove the customer. We keep the row and flag it. Only unusable rows are rejected.
-
-# COMMAND ----------
+# Step 3: rules
 
 reject_rules = {
     "missing_customer_id": "customer_id IS NULL OR customer_id = ''",
@@ -70,11 +46,7 @@ finish_table(TABLE, batch, typed, data_cols, reject_rules,
              keys=["customer_id"], order_col="last_modified",
              flag_rules=flag_rules, history_keys=["customer_id", "last_modified"])
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 4: check the result
-
-# COMMAND ----------
+# Step 4: check the result
 
 out = spark.read.format("delta").load(f"{SILVER}/{TABLE}")
 print("Silver customers:", out.count())

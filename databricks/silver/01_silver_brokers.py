@@ -1,12 +1,3 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 01 Silver: brokers
-# MAGIC Bronze (Parquet from Azure SQL) -> clean and type -> data quality -> Silver Delta table.
-
-# COMMAND ----------
-# MAGIC %run ../common/00_config
-
-# COMMAND ----------
 
 dbutils.widgets.text("batch", "initial", "Bronze load folder")
 batch = dbutils.widgets.get("batch")
@@ -14,22 +5,12 @@ TABLE = "brokers"
 src = f"{BRONZE}/sql/{TABLE}/{batch}"
 print("Reading:", src)
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 1: read Bronze
-
-# COMMAND ----------
-
+# Step 1: read Bronze
 raw = bronze_meta(spark.read.format("parquet").load(src))
 raw.printSchema()
 display(raw.limit(5))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 2: clean and set data types
-# MAGIC Trim spaces, fix capitalisation, cast every column to its proper type.
-
-# COMMAND ----------
+# Step 2: clean and set data types
 
 typed = raw.select(
     F.upper(F.trim("broker_id")).alias("broker_id"),
@@ -40,11 +21,7 @@ typed = raw.select(
     "_source_file", "_bronze_ts",
 )
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 3: data quality rules, quarantine, MERGE into Silver
-
-# COMMAND ----------
+# Step 3: data quality rules, quarantine, MERGE into Silver
 
 reject_rules = {
     "missing_broker_id": "broker_id IS NULL OR broker_id = ''",
@@ -55,11 +32,7 @@ data_cols = ["broker_id", "broker_name", "region", "commission_rate", "hire_date
 finish_table(TABLE, batch, typed, data_cols, reject_rules,
              keys=["broker_id"], order_col="_bronze_ts")
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 4: check the result
-
-# COMMAND ----------
+# Step 4: check the result
 
 out = spark.read.format("delta").load(f"{SILVER}/{TABLE}")
 print("Silver rows:", out.count())

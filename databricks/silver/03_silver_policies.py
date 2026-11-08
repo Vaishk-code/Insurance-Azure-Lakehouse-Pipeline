@@ -1,33 +1,17 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 03 Silver: policies
-# MAGIC Needs Silver `customers` and `brokers` first (run 01 and 02 before this).
-
-# COMMAND ----------
-# MAGIC %run ../common/00_config
-
-# COMMAND ----------
+ # 03 Silver: policies
 
 dbutils.widgets.text("batch", "initial", "Bronze load folder")
 batch = dbutils.widgets.get("batch")
 TABLE = "policies"
 src = f"{BRONZE}/sql/{TABLE}/{batch}"
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 1: read Bronze
-
-# COMMAND ----------
+# Step 1: read Bronze
 
 raw = bronze_meta(spark.read.format("parquet").load(src))
 print("Bronze rows:", raw.count())
 display(raw.limit(5))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 2: clean and type
-
-# COMMAND ----------
+# Step 2: clean and type
 
 typed = raw.select(
     F.upper(F.trim("policy_id")).alias("policy_id"),
@@ -43,22 +27,13 @@ typed = raw.select(
     "_source_file", "_bronze_ts",
 )
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 3: check parents exist (customer and broker)
-# MAGIC We left-join to the Silver customer and broker keys. If there is no match, the helper column is NULL.
-
-# COMMAND ----------
+# Step 3: check parents exist (customer and broker)
 
 cust = silver_ids("customers", "customer_id").withColumnRenamed("_in_silver", "_cust_ok")
 brok = silver_ids("brokers", "broker_id").withColumnRenamed("_in_silver", "_brok_ok")
 typed = typed.join(cust, "customer_id", "left").join(brok, "broker_id", "left")
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 4: rules, quarantine, MERGE
-
-# COMMAND ----------
+# Step 4: rules, quarantine, MERGE
 
 reject_rules = {
     "missing_policy_id": "policy_id IS NULL OR policy_id = ''",
@@ -79,11 +54,7 @@ finish_table(TABLE, batch, typed, data_cols, reject_rules,
              keys=["policy_id"], order_col="last_modified",
              flag_rules=flag_rules, drop_cols=["_cust_ok", "_brok_ok"])
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 5: look at what was rejected and why
-
-# COMMAND ----------
+# Step 5: look at what was rejected and why
 
 q = spark.read.format("delta").load(f"{QUAR}/{TABLE}")
 display(q.groupBy("reasons").count())

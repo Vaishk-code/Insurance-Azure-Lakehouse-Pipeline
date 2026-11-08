@@ -1,14 +1,4 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 05 Silver: claims
-# MAGIC Source: CSV files in Bronze. The same claim can arrive several times with a new status
-# MAGIC (Pending -> Approved). MERGE keeps one row per claim: the latest.
-# MAGIC Needs Silver `policies` first.
-
-# COMMAND ----------
-# MAGIC %run ../common/00_config
-
-# COMMAND ----------
+ # 05 Silver: claims
 
 dbutils.widgets.text("file_pattern", "claims_initial*.csv", "Bronze file name or pattern")
 pattern = dbutils.widgets.get("file_pattern")
@@ -16,24 +6,14 @@ TABLE = "claims"
 src = f"{BRONZE}/claims/{pattern}"
 print("Reading:", src)
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 1: read the CSV
-# MAGIC CSV has no types, so every column arrives as text. We read only the columns we know by name,
-# MAGIC so a new extra column (schema drift, such as `adjuster_notes`) cannot break the notebook.
-
-# COMMAND ----------
+# Step 1: read the CSV
 
 raw = bronze_meta(spark.read.option("header", True).csv(src))
 raw.printSchema()
 print("Bronze rows:", raw.count())
 display(raw.limit(5))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 2: clean and type (text to dates, decimals, timestamps)
-
-# COMMAND ----------
+# Step 2: clean and type (text to dates, decimals, timestamps)
 
 typed = raw.select(
     F.upper(F.trim("claim_id")).alias("claim_id"),
@@ -48,23 +28,13 @@ typed = raw.select(
     "_source_file", "_bronze_ts",
 )
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 3: check the parent policy
-# MAGIC Three cases: policy is in Silver (fine), policy was rejected into Quarantine (parent_policy_quarantined),
-# MAGIC or the policy never existed anywhere (orphan_policy).
-
-# COMMAND ----------
+# Step 3: check the parent policy
 
 typed = (typed
          .join(silver_ids("policies", "policy_id"), "policy_id", "left")
          .join(quarantined_ids("policies", "policy_id"), "policy_id", "left"))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 4: rules, quarantine, MERGE
-
-# COMMAND ----------
+# Step 4: rules, quarantine, MERGE
 
 reject_rules = {
     "missing_claim_id": "claim_id IS NULL OR claim_id = ''",
@@ -85,11 +55,7 @@ finish_table(TABLE, pattern, typed, data_cols, reject_rules,
              keys=["claim_id"], order_col="last_modified",
              flag_rules=flag_rules, drop_cols=["_in_silver", "_in_quarantine"])
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 5: check the result
-
-# COMMAND ----------
+# Step 5: check the result
 
 out = spark.read.format("delta").load(f"{SILVER}/{TABLE}")
 display(out.groupBy("claim_status").count())

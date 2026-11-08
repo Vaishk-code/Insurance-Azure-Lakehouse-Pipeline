@@ -1,12 +1,4 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 06 Silver: payments
-# MAGIC Each payment must point to an invoice. Needs Silver `invoices` first.
-
-# COMMAND ----------
-# MAGIC %run ../common/00_config
-
-# COMMAND ----------
+ # 06 Silver: payments
 
 dbutils.widgets.text("file_pattern", "payments_initial*.csv", "Bronze file name or pattern")
 pattern = dbutils.widgets.get("file_pattern")
@@ -14,21 +6,13 @@ TABLE = "payments"
 src = f"{BRONZE}/payments/{pattern}"
 print("Reading:", src)
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 1: read the CSV
-
-# COMMAND ----------
+# Step 1: read the CSV
 
 raw = bronze_meta(spark.read.option("header", True).csv(src))
 print("Bronze rows:", raw.count())
 display(raw.limit(5))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 2: clean and type
-
-# COMMAND ----------
+# Step 2: clean and type
 
 typed = raw.select(
     F.upper(F.trim("payment_id")).alias("payment_id"),
@@ -42,22 +26,13 @@ typed = raw.select(
     "_source_file", "_bronze_ts",
 )
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 3: check the parent invoice
-
-# COMMAND ----------
+# Step 3: check the parent invoice
 
 typed = (typed
          .join(silver_ids("invoices", "invoice_id"), "invoice_id", "left")
          .join(quarantined_ids("invoices", "invoice_id"), "invoice_id", "left"))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 4: rules, quarantine, MERGE
-# MAGIC Partial payments are kept and flagged: they are real business events, not errors.
-
-# COMMAND ----------
+# Step 4: rules, quarantine, MERGE
 
 reject_rules = {
     "missing_payment_id": "payment_id IS NULL OR payment_id = ''",
@@ -77,11 +52,7 @@ finish_table(TABLE, pattern, typed, data_cols, reject_rules,
              keys=["payment_id"], order_col="_bronze_ts",
              flag_rules=flag_rules, drop_cols=["_in_silver", "_in_quarantine"])
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 5: check the result
-
-# COMMAND ----------
+# Step 5: check the result
 
 out = spark.read.format("delta").load(f"{SILVER}/{TABLE}")
 display(out.groupBy("status").count())

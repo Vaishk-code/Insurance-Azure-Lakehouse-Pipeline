@@ -1,29 +1,5 @@
-# Databricks notebook source
-# MAGIC %md
-# MAGIC # 14 Gold: fact_claims
-# MAGIC **What it is:** one row per claim, with numbers (amounts, days) and keys that point to the dimensions.
-# MAGIC
-# MAGIC **What we add to each Silver claim:**
-# MAGIC * `customer_key`: which customer row was valid **on the claim date** (this is the SCD2 join)
-# MAGIC * `policy_key`, `broker_key`: found through the policy
-# MAGIC * `claim_date_key`, `settlement_date_key`: dates as numbers like 20250701
-# MAGIC * `settlement_days`: days from claim date to settlement (empty if not settled yet)
-# MAGIC * `fraud_score`, `risk_band`: from the fraud API (claims never scored get "Unscored")
-# MAGIC * from the adjuster notes: `has_adjuster_note`, `red_flag_count`, `note_amount_mismatch`
-# MAGIC
-# MAGIC **Important rule:** the fact table must end with the **same number of rows** as Silver claims.
-# MAGIC If it has more, a join created duplicates. That is why notes are summarised to one row per claim first.
-# MAGIC
-# MAGIC **Needs:** notebooks 11, 12, 13 done first.
-
-# COMMAND ----------
-# MAGIC %run ./00_gold_config
-
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 1: load everything we need
-
-# COMMAND ----------
+# Gold: fact_claims
+# Step 1: load everything we need
 
 load_silver("claims")
 load_silver("policies")
@@ -34,15 +10,7 @@ load_gold("dim_policy")
 load_gold("dim_broker")
 print("Silver claims:", spark.table("silver_claims").count())
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 2: build the fact table
-# MAGIC Read it from the top:
-# MAGIC * `notes`: one summary row per claim (a claim can have 2 notes, so we summarise first to avoid duplicates)
-# MAGIC * `LEFT JOIN`: keep every claim even if something is missing. `COALESCE(..., -1)` points missing ones to "Unknown".
-# MAGIC * the customer join has a date rule: `claim_date >= effective_from AND claim_date < effective_to`
-
-# COMMAND ----------
+# Step 2: build the fact table
 
 fact_claims = spark.sql("""
     WITH notes AS (
@@ -82,31 +50,18 @@ fact_claims = spark.sql("""
 """)
 display(fact_claims.limit(10))
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 3: the row count check (must match)
-
-# COMMAND ----------
+# Step 3: the row count check (must match)
 
 n_silver = spark.table("silver_claims").count()
 n_fact = fact_claims.count()
 print("Silver claims:", n_silver, "  fact_claims:", n_fact)
 print("OK, same count" if n_silver == n_fact else "PROBLEM: counts differ, a join created duplicates or lost rows")
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 4: save
-
-# COMMAND ----------
+# Step 4: save
 
 save_gold(fact_claims, "fact_claims")
 
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## Step 5: how many claims could not find a match? (Unknown = -1)
-# MAGIC A small number is fine if you can explain it. A big number means a join problem.
-
-# COMMAND ----------
+# Step 5: how many claims could not find a match? (Unknown = -1)
 
 display(spark.sql("""
     SELECT SUM(CASE WHEN customer_key = -1 THEN 1 ELSE 0 END) AS unknown_customer,
