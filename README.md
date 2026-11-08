@@ -154,12 +154,12 @@ Silver and Gold notebooks are run manually after the ADF run (see Limitations).
 insurance-azure-data-pipeline/
 ├── data_generator/   synthetic data: history, daily batches, adjuster notes
 ├── mock_api/         fraud score JSON files served as a mock REST API
-├── sql/              Azure SQL setup (tables, watermark table and procedure)
-├── adf/              exported Data Factory pipelines (ARM template)
+├── sql/              Azure SQL setup 
+├── adf/              exported Data Factory pipelines 
 ├── databricks/
 │   ├── common/       shared settings and helper functions
-│   ├── silver/       Silver notebooks (01 to 10)
-│   └── gold/         Gold notebooks (00 to 19, including checks and metrics)
+│   ├── silver/       Silver notebooks 
+│   └── gold/         Gold notebooks 
 ├── synapse/          serverless SQL views and metric views
 └── docs/             requirements, architecture, data model, decisions, runbook, images
 
