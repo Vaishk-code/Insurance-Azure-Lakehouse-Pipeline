@@ -83,7 +83,7 @@ Simulated daily changes:1 to 5 July 2025.The date used for aging and open-claim 
 
 Details and the source-system model: [`docs/data_model.md`](docs/data_model.md)
 
-## Business metrics (defined in `databricks/gold/19_gold_metrics.py` and as Synapse views in `synapse/synapse_views.sql`):
+## Business metrics 
 
 | Metric | Definition |
 |---|---|
@@ -151,7 +151,6 @@ Silver and Gold notebooks are run manually after the ADF run (see Limitations).
 
 ## Repository structure
 
-```
 insurance-azure-data-pipeline/
 ├── data_generator/   synthetic data: history, daily batches, adjuster notes
 ├── mock_api/         fraud score JSON files served as a mock REST API
@@ -163,7 +162,7 @@ insurance-azure-data-pipeline/
 │   └── gold/         Gold notebooks (00 to 19, including checks and metrics)
 ├── synapse/          serverless SQL views and metric views
 └── docs/             requirements, architecture, data model, decisions, runbook, images
-```
+
 
 ## Documentation
 
