@@ -1,4 +1,4 @@
-# InsureFlow: Business Requirements
+# Insurance Lakehouse: Business Requirements
 
 ## 1. Background
 A mid-size insurer (auto, home, health, life) runs a policy admin system on Azure SQL, receives claims and premium payments as daily file drops, and buys fraud scores from a third-party API. Reporting is manual (Excel), slow, and inconsistent across teams.
