@@ -126,7 +126,7 @@ Silver and Gold notebooks are run manually after the ADF run (see Limitations).
 - [x] Silver layer: cleaning, data quality, quarantine, MERGE
 - [x] Gold layer: star schema, SCD Type 2, metrics
 - [x] Synapse serverless views
-- [X] Power BI dashboard (tick when the screenshot is added)
+- [X] Power BI dashboard 
 
 ## Lessons learned
 
